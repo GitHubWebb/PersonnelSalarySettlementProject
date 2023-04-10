@@ -1,0 +1,338 @@
+apply plugin : 'com.android.application'
+apply plugin : 'android-aspectjx'
+apply from : '../config/common.gradle'
+apply from : '../config/mergeMainifest.gradle'
+apply plugin : 'kotlin-kapt'
+apply plugin: 'dagger.hilt.android.plugin'
+apply plugin: 'com.huawei.agconnect'
+
+// Android 代码规范文档：https://github.com/getActivity/AndroidCodeStandard
+android {
+
+    // 资源目录存放指引：https://developer.android.google.cn/guide/topics/resources/providing-resources
+    defaultConfig {
+
+        // 无痛修改包名：https://www.jianshu.com/p/17327e191d2e
+        applicationId "com.personal.salary.kotlin"
+
+        // 仅保留中文语种的资源
+        resConfigs 'zh'
+
+        // 仅保留 xxhdpi 图片资源（目前主流分辨率 1920 * 1080）
+        resConfigs 'xxhdpi'
+
+        // 混淆配置
+        proguardFiles 'proguard-sdk.pro', 'proguard-app.pro'
+
+        // 日志打印开关
+        buildConfigField('boolean', 'LOG_ENABLE', '' + LOG_ENABLE + '')
+        // 测试包下的 BuglyId
+        buildConfigField('String', 'BUGLY_ID', '"' + BUGLY_ID + '"')
+        // 测试服务器的主机地址
+        buildConfigField('String', 'HOST_URL', '"' + HOST_URL + '"')
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    // Apk 签名的那些事：https://www.jianshu.com/p/a1f8e5896aa2
+    signingConfigs {
+        config {
+            storeFile file(StoreFile)
+            storePassword StorePassword
+            keyAlias KeyAlias
+            keyPassword KeyPassword
+        }
+    }
+
+    // 构建配置：https://developer.android.google.cn/studio/build/build-variants
+    buildTypes {
+
+        debug {
+            // 给包名添加后缀
+            applicationIdSuffix '.debug'
+            // 调试模式开关
+            debuggable true
+            jniDebuggable true
+            // 压缩对齐开关
+            zipAlignEnabled false
+            // 移除无用的资源
+            shrinkResources false
+            // 代码混淆开关
+            minifyEnabled false
+            // 签名信息配置
+            signingConfig signingConfigs.config
+            // 添加清单占位符
+            addManifestPlaceholders([
+                    'app_name'    :    'KotlinApplication Debug 版'
+            ])
+            // 调试模式下只保留一种架构的 so 库，提升打包速度
+            ndk {
+                abiFilters "armeabi-v7a","arm64-v8a"
+            }
+        }
+
+        preview.initWith(debug)
+        preview {
+            applicationIdSuffix ''
+            // 添加清单占位符
+            addManifestPlaceholders([
+                    'app_name'    :    'KotlinApplication Preview 版'
+            ])
+        }
+
+        release {
+            // 调试模式开关
+            debuggable false
+            jniDebuggable false
+            // 压缩对齐开关
+            zipAlignEnabled true
+            // 移除无用的资源
+            shrinkResources true
+            // 代码混淆开关
+            minifyEnabled true
+            // 签名信息配置
+            signingConfig signingConfigs.config
+            // 添加清单占位符
+            addManifestPlaceholders([
+                    'app_name'    :    '@string/app_name'
+            ])
+            // 仅保留两种架构的 so 库，根据 Bugly 统计得出
+            ndk {
+                // armeabi：万金油架构平台（占用率：0%）
+                // armeabi-v7a：曾经主流的架构平台（占用率：10%）
+                // arm64-v8a：目前主流架构平台（占用率：95%）
+                abiFilters 'armeabi-v7a', 'arm64-v8a'
+            }
+        }
+    }
+
+    packagingOptions {
+        // 剔除这个包下的所有文件（不会移除签名信息）
+        exclude 'META-INF/*******'
+    }
+
+    // AOP 配置（exclude 和 include 二选一）
+    // 需要进行配置，否则就会引发冲突，具体表现为：
+    // 第一种：编译不过去，报错：java.util.zip.ZipException：Cause: zip file is empty
+    // 第二种：编译能过去，但运行时报错：ClassNotFoundException: Didn't find class on path: DexPathList
+    aspectjx {
+        // 排除一些第三方库的包名（Gson、 LeakCanary 和 AOP 有冲突）
+        // exclude 'androidx', 'com.google', 'com.squareup', 'org.apache', 'com.alipay', 'com.taobao', 'versions.9'
+        // 只对以下包名做 AOP 处理
+        include android.defaultConfig.applicationId
+    }
+
+    applicationVariants.all { variant ->
+        // apk 输出文件名配置
+        variant.outputs.all { output ->
+            outputFileName = rootProject.getName() + '_v' + variant.versionName + '_' + variant.buildType.name
+            if (variant.buildType.name == buildTypes.release.getName()) {
+                outputFileName += '_' + new Date().format('MMdd')
+            }
+            outputFileName += '.apk'
+        }
+    }
+}
+
+dependencies {
+
+    // 基类封装
+    implementation project(':library:base')
+    // 控件封装
+    implementation project(':library:widget')
+    // 友盟封装
+    implementation project(':library:umeng')
+    // 网络封装
+    implementation project(':library:network')
+
+    // 单元测试
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+
+    implementation rootProject.ext.dependencies.KtxActivity
+    implementation rootProject.ext.dependencies.KtxFragment
+    implementation rootProject.ext.dependencies.KtxLiveData
+
+    implementation rootProject.ext.dependencies.KtxCore
+
+    // Room 数据库：https://developer.android.com/jetpack/androidx/releases/room
+    // CodeLab：https://developer.android.com/codelabs/android-room-with-a-view-kotlin#0
+    implementation rootProject.ext.dependencies.RoomRuntime
+    // 使用 Kotlin 注解处理工具 (kapt)
+    kapt rootProject.ext.dependencies.RoomCompiler
+    // 对 Room 的 Kotlin 扩展和协程支持
+    implementation rootProject.ext.dependencies.KtxRoom
+
+    // Paging 分页库：https://developer.android.google.cn/jetpack/androidx/releases/paging
+    implementation rootProject.ext.dependencies.KtxPaging
+    // Navigation 导航
+    implementation rootProject.ext.dependencies.KtxNavigation
+    implementation rootProject.ext.dependencies.KtxNavigationUI
+    // Feature module Support
+    implementation rootProject.ext.dependencies.NavigationFrgmt
+    // Emoji2：https://developer.android.google.cn/jetpack/androidx/releases/emoji2
+    // implementation("androidx.emoji2:emoji2:$emoji2_version")
+    // implementation("androidx.emoji2:emoji2-views:$emoji2_version")
+    // implementation("androidx.emoji2:emoji2-views-helper:$emoji2_version")
+    // WorkManager（Kotlin + coroutines）：https://developer.android.google.cn/jetpack/androidx/releases/work
+    implementation rootProject.ext.dependencies.KtxWork
+
+    // 权限请求框架：https://github.com/getActivity/XXPermissions
+    implementation rootProject.ext.dependencies.XXPermissions
+
+    // 标题栏框架：https://github.com/getActivity/TitleBar
+    implementation rootProject.ext.dependencies.TitleBar
+
+    // 吐司框架：https://github.com/getActivity/ToastUtils
+    implementation rootProject.ext.dependencies.ToastUtils
+
+    // 网络请求框架：https://github.com/getActivity/EasyHttp
+    implementation rootProject.ext.dependencies.EasyHttp
+    // OkHttp 框架：https://github.com/square/okhttp
+    // noinspection GradleDependency
+    implementation rootProject.ext.dependencies.OkHttp
+    // Android网络请求库：https://github.com/square/retrofit
+    implementation rootProject.ext.dependencies.Retrofit
+    implementation rootProject.ext.dependencies.RetrofitGson
+    implementation rootProject.ext.dependencies.OkHttpLog
+
+    // Json 解析框架：https://github.com/google/gson
+    implementation rootProject.ext.dependencies.Gson
+    // Gson 解析容错：https://github.com/getActivity/GsonFactory
+    implementation rootProject.ext.dependencies.GsonFactory
+
+    // Shape 框架：https://github.com/getActivity/ShapeView
+    implementation "com.github.getActivity:ShapeView:8.3"
+
+    // AOP 插件库：https://mvnrepository.com/artifact/org.aspectj/aspectjrt
+    implementation "org.aspectj:aspectjrt:1.9.6"
+
+    // 图片加载框架：https://github.com/bumptech/glide
+    // 官方使用文档：https://github.com/Muyangmin/glide-docs-cn
+    implementation "com.github.bumptech.glide:glide:4.14.2"
+    implementation "com.github.bumptech.glide:okhttp3-integration:4.12.0"
+    kapt "com.github.bumptech.glide:compiler:4.14.2"
+
+    // 沉浸式框架：https://github.com/gyf-dev/ImmersionBar
+    implementation "com.gyf.immersionbar:immersionbar:3.0.0"
+
+    // 手势 ImageView：https://github.com/Baseflow/PhotoView
+    implementation "com.github.Baseflow:PhotoView:2.3.0"
+
+    // Bugly 异常捕捉：https://bugly.qq.com/docs/user-guide/instruction-manual-android/?v=20190418140644
+    implementation "com.tencent.bugly:crashreport:3.4.4"
+    implementation "com.tencent.bugly:nativecrashreport:3.9.2"
+
+    // 动画解析库：https://github.com/airbnb/lottie-android
+    // 动画资源：https://lottiefiles.com、https://icons8.com/animated-icons
+    implementation "com.airbnb.android:lottie:4.1.0"
+
+    // 上拉刷新下拉加载框架：https://github.com/scwang90/SmartRefreshLayout
+    implementation 'io.github.scwang90:refresh-layout-kernel:2.0.5'
+    implementation 'io.github.scwang90:refresh-header-material:2.0.5'
+    implementation 'io.github.scwang90:refresh-header-classics:2.0.5'
+
+    // 日志打印框架：https://github.com/JakeWharton/timber
+    implementation "com.jakewharton.timber:timber:4.7.1"
+
+    // 指示器框架：https://github.com/ongakuer/CircleIndicator
+    implementation "me.relex:circleindicator:2.1.6"
+
+    // 腾讯 MMKV：https://github.com/Tencent/MMKV
+    implementation "com.tencent:mmkv-static:1.2.10"
+
+    // 内存泄漏监测框架：https://github.com/square/leakcanary
+    debugImplementation "com.squareup.leakcanary:leakcanary-android:2.8.1"
+    previewImplementation "com.squareup.leakcanary:leakcanary-android:2.8.1"
+
+    // 多语种：https://github.com/getActivity/MultiLanguages
+    // 悬浮窗：https://github.com/getActivity/XToast
+    // 日志输出：https://github.com/getActivity/Logcat
+    // 工具类：https://github.com/Blankj/AndroidUtilCode
+    implementation "com.blankj:utilcodex:1.31.0"
+    // 轮播图：https://github.com/bingoogolapple/BGABanner-Android
+    // 二维码：https://github.com/bingoogolapple/BGAQRCode-Android
+    // 跑马灯：https://github.com/sunfusheng/MarqueeView
+    // 对象注解：https://www.jianshu.com/p/f1f888e4a35f
+    // 平板适配：https://github.com/JessYanCoding/AndroidAutoSize
+    // 图片压缩：https://github.com/Curzibn/Luban
+    implementation "top.zibin:Luban:1.1.8"
+    // 对象注解：https://www.jianshu.com/p/f1f888e4a35f
+    // 对象存储：https://github.com/leavesC/DoKV
+    // 第三方支付：https://github.com/Cuieney/RxPay
+    // 多渠道打包：https://github.com/Meituan-Dianping/walle
+    // 设备唯一标识：http://msa-alliance.cn/col.jsp?id=120
+    // 嵌套滚动容器：https://github.com/donkingliang/ConsecutiveScroller
+    // 隐私调用监控：https://github.com/huage2580/PermissionMonitor
+
+    // 一个强大并且灵活的RecyclerViewAdapter：https://github.com/CymChad/BaseRecyclerViewAdapterHelper
+    implementation "com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.4"
+    // 轮播图库：https://github.com/youth5201314/banner
+    implementation "io.github.youth5201314:banner:2.2.2"
+
+    // 小米更新SDK：https://dev.mi.com/console/doc/detail?pId=4
+    implementation "mi-appstore:xiaomi-update-sdk:4.0.3"
+
+    // // Markwon是一个适用于 Android 的Markdown库：https://noties.io/Markwon/
+    // implementation "io.noties.markwon:core:$markwon_version"
+    // implementation "io.noties.markwon:html:$markwon_version"
+    // // implementation "io.noties.markwon:image:$markwon_version"
+    // implementation "io.noties.markwon:image-glide:$markwon_version"
+    // implementation "io.noties:prism4j:${prism_version}"
+    // kapt "io.noties:prism4j-bundler:${prism_version}"
+    // implementation "io.noties.markwon:syntax-highlight:$markwon_version"
+    // // 自动生成语法高亮类的注解处理器
+    // annotationProcessor "io.noties:prism4j-bundler:${prism_version}"
+    // 支持动画展开和折叠其子视图的 Android 布局类：https://github.com/cachapa/ExpandableLayout
+    // implementation 'com.github.cachapa:ExpandableLayout:2.9.2'
+
+    // 使用 Android ViewBinding 更简单：https://github.com/androidbroadcast/ViewBindingPropertyDelegate
+    implementation "com.github.kirich1409:viewbindingpropertydelegate:1.5.3"
+    // Longan 是一个简化 Android 开发的 Kotlin 工具类集合，可以使代码更加简洁易读：https://github.com/DylanCaiCoding/Longan
+    implementation "com.github.DylanCaiCoding.Longan:longan:1.0.0"
+    // Optional
+    implementation "com.github.DylanCaiCoding.Longan:longan-design:1.0.0"
+
+    // 一个简单而友好的Android数据库调试库：https://github.com/guolindev/Glance/
+    debugImplementation "com.guolindev.glance:glance:1.1.0"
+    // 一个帮助键盘平滑过渡到功能面板的框架：https://github.com/YummyLau/PanelSwitchHelper
+    // implementation 'com.github.YummyLau:PanelSwitchHelper:1.4.0'
+
+    // // skin-support
+    // implementation 'skin.support:skin-support:4.0.5'
+    // // skin-support 基础控件支持
+    // implementation 'skin.support:skin-support-appcompat:4.0.5'
+    // // skin-support-design material design 控件支持[可选]
+    // implementation 'skin.support:skin-support-design:4.0.5'
+    // // skin-support-cardview CardView 控件支持[可选]
+    // implementation 'skin.support:skin-support-cardview:4.0.5'
+    // // skin-support-constraint-layout ConstraintLayout 控件支持[可选]
+    // implementation 'skin.support:skin-support-constraint-layout:4.0.5'
+    // // 提高 Android UI 开发效率的 UI 库：https://github.com/Tencent/QMUI_Android
+    // implementation "com.qmuiteam:qmui:$qmui_arch_version"
+    // implementation "com.qmuiteam:arch:$qmui_arch_version"
+    // kapt "com.qmuiteam:arch-compiler:$qmui_arch_version"
+    // 华为统一扫码服务：https://developer.huawei.com/consumer/cn/doc/development/HMSCore-Guides/service-introduction-0000001050041994
+    implementation 'com.huawei.agconnect:agconnect-core:1.5.2.300'
+    implementation 'com.huawei.hms:scan:2.4.0.301'
+
+    // Hilt依赖注入：https://developer.android.google.cn/jetpack/androidx/releases/hilt
+    implementation "com.google.dagger:hilt-android:2.43"
+    kapt "com.google.dagger:hilt-android-compiler:2.43"
+
+    // // 从图片中提取具有代表性的调色板：https://developer.android.com/jetpack/androidx/releases/palette
+    implementation 'androidx.palette:palette:1.0.0'
+
+    // Android下打造通用便捷的PopupWindow弹窗库：https://github.com/razerdp/BasePopup
+    implementation 'io.github.razerdp:BasePopup:3.2.0'
+
+    // 一个强大的🚀Android 图表视图/图形视图库，支持折线图、雷达图、气泡图和烛台图以及缩放、平移和动画：https://github.com/PhilJay/MPAndroidChart
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+
+    // 浮窗从未如此简单：https://github.com/princekin-f/EasyFloat
+    implementation 'com.github.princekin-f:EasyFloat:2.0.4'
+
+    // 阿里云视频播放器 SDK：https://help.aliyun.com/document_detail/124711.html?spm=a2c4g.11186623.0.0.7bd24addVQH3VE
+    implementation 'com.aliyun.sdk.android:AliyunPlayer:5.4.9.2-full'
+}

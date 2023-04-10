@@ -1,0 +1,12 @@
+apply plugin : 'com.android.library'
+apply from : '../../config/common.gradle'
+
+dependencies {
+    // // 基础库（不包任何第三方框架）
+    // implementation project(':library:base')
+
+    compileOnly rootProject.ext.dependencies.OkHttp
+    // Android网络请求库：https://github.com/square/retrofit
+    compileOnly rootProject.ext.dependencies.Retrofit
+
+}

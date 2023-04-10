@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="SuperLinearLayout">
+        <!-- 分隔线宽度 -->
+        <attr name="dividerWidth" format="dimension" />
+        <attr name="dividerHeight" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="PileLayout">
+        <!-- 两个子控件之间的垂直间隙-->
+        <attr name="verticalSpaceSize" format="integer" />
+        <!-- 重叠宽度-->
+        <attr name="pileWidth" format="integer" />
+    </declare-styleable>
+
+    <declare-styleable name="ListMenuItemContainer">
+        <attr name="defaultFirstIcon" format="reference" />
+        <attr name="defaultFirstText" format="string" />
+        <attr name="defaultSecondIcon" format="reference" />
+        <attr name="defaultSecondText" format="string" />
+        <attr name="defaultShareIcon" format="reference" />
+    </declare-styleable>
+
+    <declare-styleable name="RoundRelativeLayout">
+        <attr name="rlRadius" format="dimension" />
+        <attr name="rlClipBackground" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="GridLayout">
+        <!--最大 item 个数-->
+        <attr name="maxItemCount" format="integer" />
+        <!--一行显示的最大个数-->
+        <attr name="spanCount" format="integer" />
+        <!--每一列之间的横向间隔-->
+        <attr name="horizontalSpace" format="dimension" />
+        <!--每一列之间的纵向间隔-->
+        <attr name="verticalSpace" format="dimension" />
+        <!--最大 item 行数-->
+        <attr name="maxItemLines" format="integer" />
+    </declare-styleable>
+
+</resources>

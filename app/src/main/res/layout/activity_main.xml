@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.activity.MainActivity">
+
+    <TextView
+        android:id="@+id/tv_hello"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Hello World!"
+        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.hjq.widget.view.PlayButton
+        android:id="@+id/pb_btn"
+        android:layout_width="@dimen/dp_30"
+        android:layout_height="@dimen/dp_30"
+        app:layout_constraintLeft_toLeftOf="@id/tv_hello"
+        app:layout_constraintTop_toBottomOf="@id/tv_hello"
+        app:pb_animDuration="500"
+        app:pb_lineColor="@color/red"
+        app:pb_lineSize="2" />
+
+    <com.hjq.widget.view.SubmitButton
+        android:id="@+id/sb_btn"
+        android:layout_width="@dimen/dp_70"
+        android:layout_height="@dimen/dp_30"
+        android:background="@color/black10"
+        android:gravity="center"
+        android:text="提交按钮"
+        app:layout_constraintLeft_toRightOf="@id/pb_btn"
+        app:layout_constraintTop_toBottomOf="@id/tv_hello"
+        app:progressColor="@color/red" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
