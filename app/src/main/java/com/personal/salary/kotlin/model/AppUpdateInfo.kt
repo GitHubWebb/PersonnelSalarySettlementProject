@@ -7,7 +7,7 @@ data class AppUpdateInfo(
     @SerializedName("updateLog")
     val updateLog: String = "",
     @SerializedName("versionName")
-    val versionName: String = "KotlinApplication1.0",
+    val versionName: String = "阳光沙滩1.0",
     @SerializedName("versionCode")
     val versionCode: Int = 1,
     @SerializedName("minVersionCode")

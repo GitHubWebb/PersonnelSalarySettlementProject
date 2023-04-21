@@ -12,6 +12,7 @@ import com.hjq.base.BaseAdapter
 import com.personal.salary.kotlin.R
 import com.personal.salary.kotlin.action.OnDoubleClickListener
 import com.personal.salary.kotlin.app.AppAdapter
+import com.personal.salary.kotlin.other.DoubleClickHelper
 
 /**
  *    author : Android 轮子哥
@@ -75,6 +76,9 @@ class NavigationAdapter constructor(context: Context) :
      */
     override fun onItemClick(recyclerView: RecyclerView?, itemView: View?, position: Int) {
         if (selectedPosition == position) {
+            if(DoubleClickHelper.isOnDoubleClick()) {
+                mOnDoubleClickListener!!.onDoubleClick(recyclerView!!, position)
+            }
             return
         }
         if (listener == null) {

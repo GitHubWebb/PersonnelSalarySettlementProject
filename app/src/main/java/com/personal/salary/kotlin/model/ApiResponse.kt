@@ -2,7 +2,7 @@ package com.personal.salary.kotlin.model
 
 import com.google.gson.annotations.SerializedName
 
-class ApiResponse<T>(
+open class ApiResponse<T>(
     @SerializedName("code")
     private val code: Int,
     @SerializedName("success")

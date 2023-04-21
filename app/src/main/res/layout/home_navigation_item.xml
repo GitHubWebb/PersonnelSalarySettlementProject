@@ -23,6 +23,6 @@
         android:textSize="@dimen/sp_12"
         app:shape_textColor="#A4A4A4"
         app:shape_textSelectedColor="@color/black"
-        tools:text="@string/home_nav_index" />
+        tools:text="@string/home_nav_roster" />
 
 </LinearLayout>

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">KotlinApplication</string>
+    <string name="app_name">人员薪资汇算</string>
 
     <!-- 通用的 -->
     <string name="common_loading">加载中&#8230;</string>
@@ -153,7 +153,7 @@
 
     <!-- 首页 -->
     <string name="home_exit_hint">再按一次退出</string>
-    <string name="home_nav_personal">人员</string>
+    <string name="home_nav_roster">人员</string>
     <string name="home_nav_import">导入</string>
     <string name="home_nav_me">我的</string>
     <string name="home_nav_found">壁纸</string>

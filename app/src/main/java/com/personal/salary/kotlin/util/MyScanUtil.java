@@ -10,8 +10,11 @@ import android.os.Build;
 import androidx.fragment.app.Fragment;
 
 import com.huawei.hms.ml.scan.HmsScanAnalyzerOptions;
-import com.huawei.hms.scankit.util.a;
+import com.huawei.hms.scankit.p.y3;
+import com.huawei.hms.scankit.p.z6;
 import com.personal.salary.kotlin.ui.activity.ScanCodeActivity;
+
+import timber.log.Timber;
 
 /**
  * author : A Lonely Cat
@@ -60,10 +63,10 @@ public class MyScanUtil {
                         } catch (RuntimeException ignored) {
                         }
                     }
-                    a.b("exception", "RuntimeException");
+                    y3.b("exception", "RuntimeException");
                     break label39;
                 }
-                a.b("exception", "NameNotFoundException");
+                y3.b("exception","NameNotFoundException");
             }
             var4 = var3;
         }
@@ -86,13 +89,14 @@ public class MyScanUtil {
             label29:
             {
                 if (var1 >= 23) {
-                    if (com.huawei.hms.scankit.util.b.a(var2) == null) {
+                    if (z6.a(var2) == null) {
                         return true;
                     }
+
                     if (var0.checkSelfPermission(var2) == PackageManager.PERMISSION_GRANTED) {
                         break label29;
                     }
-                } else if (com.huawei.hms.scankit.util.b.a(var0, var2) == 0) {
+                } else if (z6.a(var0, var2) == 0) {
                     break label29;
                 }
                 return false;

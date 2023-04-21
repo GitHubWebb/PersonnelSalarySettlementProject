@@ -11,6 +11,7 @@ import android.os.Build
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import androidx.multidex.MultiDexApplication
 import androidx.work.Configuration
 import androidx.work.Constraints
 import androidx.work.PeriodicWorkRequest
@@ -33,6 +34,7 @@ import com.hjq.umeng.UmengClient
 import com.personal.salary.kotlin.R
 import com.personal.salary.kotlin.aop.Log
 import com.personal.salary.kotlin.db.CookieRoomDatabase
+import com.personal.salary.kotlin.db.EmployeeRosterRoomDatabase
 import com.personal.salary.kotlin.http.glide.GlideApp
 import com.personal.salary.kotlin.http.interceptor.accountInterceptor
 import com.personal.salary.kotlin.http.model.RequestHandler
@@ -61,6 +63,11 @@ import java.util.concurrent.TimeUnit
 @HiltAndroidApp
 class AppApplication : Application(), Configuration.Provider {
 
+    /*init {
+        System.setProperty("org.apache.poi.javax.xml.stream.XMLInputFactory", "com.fasterxml.aalto.stax.InputFactoryImpl")
+        System.setProperty("org.apache.poi.javax.xml.stream.XMLOutputFactory", "com.fasterxml.aalto.stax.OutputFactoryImpl")
+        System.setProperty("org.apache.poi.javax.xml.stream.XMLEventFactory", "com.fasterxml.aalto.stax.EventFactoryImpl")
+    }*/
     @Log("启动耗时")
     override fun onCreate() {
         super.onCreate()
@@ -87,12 +94,14 @@ class AppApplication : Application(), Configuration.Provider {
     //<editor-fold desc="静态变量">
     companion object {
         private lateinit var mApp: Application;
-        private lateinit var database: CookieRoomDatabase;
+        private lateinit var cookieRoomDatabase: CookieRoomDatabase;
+        private lateinit var empRoomDatabase: EmployeeRosterRoomDatabase;
         private const val sWeatherApiToken = "7xoSm4k7GIK8X8E1";
 
         fun getInstance() = mApp;
 
-        fun getDatabase() = database;
+        fun getCookieDatabase() = cookieRoomDatabase;
+        fun getEmpDatabase() = empRoomDatabase;
 
         fun getWeatherApiToken(): String {
             return sWeatherApiToken;
@@ -215,7 +224,8 @@ class AppApplication : Application(), Configuration.Provider {
                 })
             }
             // 初始化 Room 数据库
-            database = CookieRoomDatabase.getDatabase(application)
+            cookieRoomDatabase = CookieRoomDatabase.getDatabase(application)
+            empRoomDatabase = EmployeeRosterRoomDatabase.getDatabase(application)
             // 初始化 Glide 的 Cookie 管理
             Glide.get(application)
                 .registry

@@ -18,7 +18,7 @@ import timber.log.Timber
  */
 object WebViewHookHelper {
 
-    private val database = AppApplication.getDatabase()
+    private val database = AppApplication.getCookieDatabase()
     private val cookieDao: CookieDao = database.cookieDao()
 
     fun injectCookie(url: String?) {

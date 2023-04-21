@@ -37,13 +37,13 @@ ext {
             Gson                : "2.8.8",
             GsonFactory         : "5.2",
 
-            XXPermissions       : "16.5",
+            XXPermissions       : "18.0",
             TitleBar            : "9.6",
             ToastUtils          : "10.0",
             EasyHttp            : "10.2",
 
             ButterKnife         : "10.2.3",
-            Lombok              : "1.18.20",
+            Lombok              : "1.18.26",
             WechatSDK           : "6.8.0",
             JPush               : "3.3.1",
             JCore               : "2.0.1",

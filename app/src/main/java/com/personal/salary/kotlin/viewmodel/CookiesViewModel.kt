@@ -15,7 +15,7 @@ import com.personal.salary.kotlin.manager.CookieStore
  */
 class CookiesViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val cookieDao: CookieDao = AppApplication.getDatabase().cookieDao()
+    private val cookieDao: CookieDao = AppApplication.getCookieDatabase().cookieDao()
 
     /**
      * 保存 Cookies

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.hjq.widget.view.DrawableTextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tv_status_text"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/white_selector"
+    android:drawableEnd="@drawable/glance_library_arrow_right"
+    android:gravity="center_horizontal|left"
+    android:paddingVertical="@dimen/dp_10"
+    android:paddingHorizontal="@dimen/dp_10"
+    android:textSize="@dimen/sp_12"
+    app:drawableHeight="@dimen/dp_10"
+    app:drawableWidth="@dimen/dp_10"
+    tools:context=".ui.adapter.StatusAdapter"
+    tools:text="我是条目" />

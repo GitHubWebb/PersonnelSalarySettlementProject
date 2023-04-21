@@ -1,6 +1,7 @@
 package com.personal.salary.kotlin.http.network
 
 import com.personal.salary.kotlin.http.api.sob.UserApi
+import com.personal.salary.kotlin.model.ArticleSearchFilter
 import com.personal.salary.kotlin.model.ModifyPwd
 import com.personal.salary.kotlin.model.SmsInfo
 import com.personal.salary.kotlin.model.User
@@ -15,6 +16,9 @@ import okhttp3.MultipartBody
 object UserNetwork {
 
     suspend fun queryIntegralRule(item: String) = UserApi.queryIntegralRule(item)
+
+    suspend fun searchArticleList(page: Int, articleSearchFilter: ArticleSearchFilter) =
+        UserApi.searchArticleList(page, articleSearchFilter)
 
     suspend fun modifyAvatar(avatarUrl: String) = UserApi.modifyAvatar(avatarUrl)
 

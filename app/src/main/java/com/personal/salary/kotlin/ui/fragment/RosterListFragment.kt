@@ -1,45 +1,48 @@
 package com.personal.salary.kotlin.ui.fragment
 
-import android.app.Activity
-import android.content.Intent
-import android.net.Uri
+import android.annotation.SuppressLint
+import android.view.View
 import androidx.fragment.app.activityViewModels
-import androidx.recyclerview.widget.ConcatAdapter
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.lifecycle.lifecycleScope
+import androidx.paging.PagingData
 import by.kirich1409.viewbindingdelegate.viewBinding
-import com.personal.salary.kotlin.ui.adapter.delegate.AdapterDelegate
-import com.personal.salary.kotlin.viewmodel.app.AppViewModel
-import com.dylanc.longan.viewLifecycleScope
-import com.hjq.bar.TitleBar
-import com.hjq.permissions.Permission
-import com.huawei.hms.hmsscankit.ScanUtil
-import com.huawei.hms.ml.scan.HmsScan
-import com.huawei.hms.ml.scan.HmsScanAnalyzerOptions
+import com.hjq.umeng.Platform
+import com.hjq.umeng.UmengShare
+import com.oubowu.stickyitemdecoration.OnStickyChangeListener
+import com.oubowu.stickyitemdecoration.StickyHeadContainer
+import com.oubowu.stickyitemdecoration.StickyItemDecoration
+import com.oubowu.stickyitemdecoration.adapter.StickerItemAdapter
+import com.oubowu.stickyitemdecoration.itemdecoration.SpaceItemDecoration
 import com.personal.salary.kotlin.R
 import com.personal.salary.kotlin.action.OnBack2TopListener
-import com.personal.salary.kotlin.action.StatusAction
-import com.personal.salary.kotlin.aop.Permissions
-import com.personal.salary.kotlin.app.AppActivity
-import com.personal.salary.kotlin.app.TitleBarFragment
+import com.personal.salary.kotlin.app.PagingTitleBarFragment
 import com.personal.salary.kotlin.databinding.RosterListFragmentBinding
-import com.personal.salary.kotlin.ktx.*
-import com.personal.salary.kotlin.model.MourningCalendar
+import com.personal.salary.kotlin.ktx.dp
+import com.personal.salary.kotlin.ktx.setFixOnClickListener
+import com.personal.salary.kotlin.ktx.snapshotList
+import com.personal.salary.kotlin.manager.EmployeeRosterManager
+import com.personal.salary.kotlin.manager.EmployeeRosterStore
+import com.personal.salary.kotlin.model.ArticleInfo
 import com.personal.salary.kotlin.model.RefreshStatus
+import com.personal.salary.kotlin.ui.activity.BrowserActivity
+import com.personal.salary.kotlin.ui.activity.HomeActivity
 import com.personal.salary.kotlin.ui.activity.ImagePreviewActivity
-import com.personal.salary.kotlin.ui.activity.ViewUserActivity
-import com.personal.salary.kotlin.ui.adapter.EmptyAdapter
-import com.personal.salary.kotlin.ui.adapter.RosterListAdapter
-import com.personal.salary.kotlin.util.MyScanUtil
+import com.personal.salary.kotlin.ui.activity.SearchActivity
+import com.personal.salary.kotlin.ui.adapter.RosterAdapter
+import com.personal.salary.kotlin.ui.adapter.delegate.AdapterDelegate
+import com.personal.salary.kotlin.ui.dialog.ShareDialog
+import com.personal.salary.kotlin.util.SUNNY_BEACH_ARTICLE_URL_PRE
 import com.personal.salary.kotlin.util.SimpleLinearSpaceItemDecoration
+import com.personal.salary.kotlin.util.UmengReportKey
 import com.personal.salary.kotlin.viewmodel.roster.RosterViewModel
-import com.personal.salary.kotlin.widget.StatusLayout
-import dagger.hilt.android.AndroidEntryPoint
+import com.umeng.analytics.MobclickAgent
+import com.umeng.socialize.media.UMImage
+import com.umeng.socialize.media.UMWeb
+import com.xiaomi.push.it
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.text.SimpleDateFormat
-import java.util.*
-import javax.inject.Inject
-import kotlin.text.orEmpty
 
 /**
  * author : wangwx
@@ -47,103 +50,129 @@ import kotlin.text.orEmpty
  * time   : 2023/04/10
  * desc   : 花名册(人员列表) Fragment
  */
-@AndroidEntryPoint
-class RosterListFragment : TitleBarFragment<AppActivity>(), StatusAction, OnBack2TopListener {
+class RosterListFragment : PagingTitleBarFragment<HomeActivity>(), OnBack2TopListener {
 
     private val mBinding: RosterListFragmentBinding by viewBinding()
-
-    @Inject
-    lateinit var mAppViewModel: AppViewModel
-
-    private val mFishPondViewModel by activityViewModels<RosterViewModel>()
+    private val mRosterViewModel by activityViewModels<RosterViewModel>()
     private val mRefreshStatus = RefreshStatus()
-    private val mFishListAdapterDelegate = AdapterDelegate()
-    private val mRosterListAdapter = RosterListAdapter(mFishListAdapterDelegate)
-    private val loadStateListener = loadStateListener(mRosterListAdapter) { mBinding.refreshLayout.finishRefresh() }
+    private val mAdapterDelegate = AdapterDelegate()
+    private val mRosterAdapter = RosterAdapter(mAdapterDelegate)
+
+    override fun getPagingAdapter() = mRosterAdapter
 
     override fun getLayoutId(): Int = R.layout.roster_list_fragment
 
     override fun initView() {
-        // This emptyAdapter is like a hacker.
-        // Its existence allows the PagingAdapter to scroll to the top before being refreshed,
-        // avoiding the problem that the PagingAdapter cannot return to the top after being refreshed.
-        // But it needs to be used in conjunction with ConcatAdapter, and must appear before PagingAdapter.
-        val emptyAdapter = EmptyAdapter()
-        val concatAdapter = ConcatAdapter(emptyAdapter, mRosterListAdapter)
-        mBinding.apply {
-            rvFishPondList.apply {
-                layoutManager = LinearLayoutManager(context)
-                adapter = concatAdapter
-                addItemDecoration(SimpleLinearSpaceItemDecoration(6.dp))
+        super.initView()
+        mBinding.pagingRecyclerView.addItemDecoration(SimpleLinearSpaceItemDecoration(4.dp))
+    }
+
+    override suspend fun loadListData() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val employeeRosterManager = EmployeeRosterManager.get()
+            var rosterListGroupByDept = employeeRosterManager.getRosterListGroupByDept()
+            Timber.d("rosterListGroupByDept: ${rosterListGroupByDept}")
+            rosterListGroupByDept?.let {
+                mRosterAdapter.submitData(
+                    PagingData.from(
+                        rosterListGroupByDept
+                    )
+                )
             }
+
         }
+
+        /*mRosterViewModel.getArticleListByCategoryId("recommend").collectLatest {
+            mRosterAdapter.submitData(it)
+        }*/
     }
 
-    override fun initData() {
-        loadFishList()
-        mAppViewModel.getMourningCalendar().observe(viewLifecycleOwner) {
-            val result = it.getOrNull() ?: return@observe
-            setMourningStyleByDate(result)
-        }
-    }
-
-    private fun loadFishList() {
-        viewLifecycleScope.launchWhenCreated {
-            /*mFishPondViewModel.getFishListByCategoryId("recommend").collectLatest {
-                onBack2Top()
-                mRosterListAdapter.submitData(it)
-            }*/
-        }
-    }
-
+    @SuppressLint("InflateParams")
     override fun initEvent() {
+        super.initEvent()
         mBinding.apply {
-            titleBar.setDoubleClickListener {
-                onBack2Top()
-            }
-            refreshLayout.setOnRefreshListener {
-                mRosterListAdapter.refresh()
-            }
-            ivPublish.setFixOnClickListener {
-                viewLifecycleScope.launch {
-                    // 操作按钮点击回调，判断是否已经登录过账号
-                    requireActivity().tryShowLoginDialog()
-                }
+            topLayout.setOnClickListener { }
+            searchContainer.setFixOnClickListener {
+                MobclickAgent.onEvent(context, UmengReportKey.HOME_SEARCH)
+                SearchActivity.start(requireActivity(), it)
             }
         }
-        // 需要在 View 销毁的时候移除 listener
-        mRosterListAdapter.addLoadStateListener(loadStateListener)
-        mFishListAdapterDelegate.setOnItemClickListener { _, position ->
-            // mRosterListAdapter.snapshotList[position]?.let { FishPondDetailActivity.start(requireContext(), it.id) }
-        }
-        mRosterListAdapter.setOnMenuItemClickListener { view, item, position ->
 
+        mBinding.stickHeadContainer.setDataCallback(StickyHeadContainer.DataCallback { pos ->
+            // mStickyPosition = pos
+            val item: EmployeeRosterStore? = mRosterAdapter.snapshotList[pos]
+            item?.let {
+                mBinding.itemRosterStickyHead.tvRosterStickyHeadName.setText(item.firstOrderDept)
+                mBinding.itemRosterStickyHead.tvCount.setText("${item.itemCount}人")
+                mBinding.itemRosterStickyHead.checkbox.setChecked(pos % 2 == 0)
+
+            }
+        })
+        mBinding.stickHeadContainer.setOnClickListener(View.OnClickListener {
+            toast(
+                "点击了粘性头部：" + mBinding.itemRosterStickyHead.tvRosterStickyHeadName.getText(),
+            )
+        })
+
+        val stickyItemDecoration =
+            StickyItemDecoration(mBinding.stickHeadContainer, StickerItemAdapter.TYPE_STICKY_HEAD)
+        stickyItemDecoration.setOnStickyChangeListener(object : OnStickyChangeListener {
+            override fun onScrollable(offset: Int) {
+                mBinding.stickHeadContainer.scrollChild(offset)
+                mBinding.stickHeadContainer.setVisibility(View.VISIBLE)
+            }
+
+            override fun onInVisible() {
+                mBinding.stickHeadContainer.reset()
+                mBinding.stickHeadContainer.setVisibility(View.INVISIBLE)
+            }
+        })
+
+        mBinding.pagingRecyclerView.addItemDecoration(stickyItemDecoration)
+        mBinding.pagingRecyclerView.addItemDecoration(
+            SpaceItemDecoration(
+                mBinding.pagingRecyclerView.getContext()
+            )
+        )
+
+        mAdapterDelegate.setOnItemClickListener { _, position ->
+            mRosterAdapter.snapshotList[position]?.let {
+                val url = "$SUNNY_BEACH_ARTICLE_URL_PRE${it.uId}"
+                BrowserActivity.start(requireContext(), url)
+            }
         }
-        mRosterListAdapter.setOnNineGridClickListener { sources, index ->
+        mRosterAdapter.setOnMenuItemClickListener { view, item, _ ->
+            when (view.id) {
+                R.id.ll_share -> shareArticle(item)
+                // R.id.ll_great -> articleLikes(item, position)
+            }
+        }
+        mRosterAdapter.setOnNineGridClickListener { sources, index ->
             ImagePreviewActivity.start(requireContext(), sources.toMutableList(), index)
         }
     }
 
-    override fun initObserver() {
-        mAppViewModel.mourningCalendarListLiveData.observe(viewLifecycleOwner) { setMourningStyleByDate(it) }
-        mFishPondViewModel.fishListStateLiveData.observe(viewLifecycleOwner) { mRosterListAdapter.refresh() }
-    }
+    private fun shareArticle(item: EmployeeRosterStore) {
+        val articleId = item.uId
+        val content = UMWeb(SUNNY_BEACH_ARTICLE_URL_PRE + articleId)
+        content.title = item.empName
+        content.setThumb(UMImage(requireContext(), R.mipmap.launcher_ic))
+        content.description = getString(R.string.app_name)
+        // 分享
+        ShareDialog.Builder(requireActivity()).setShareLink(content)
+            .setListener(object : UmengShare.OnShareListener {
+                override fun onSucceed(platform: Platform?) {
+                    toast("分享成功")
+                }
 
-    private fun setMourningStyleByDate(mourningCalendarList: List<MourningCalendar>) {
-        val sdf = SimpleDateFormat("MM月dd日", Locale.getDefault())
-        val formatDate = sdf.format(System.currentTimeMillis())
-        val rootView = requireView()
-        mourningCalendarList.find { it.date == formatDate }?.let { rootView.setMourningStyle() }
-            ?: rootView.removeMourningStyle()
-    }
+                override fun onError(platform: Platform?, t: Throwable) {
+                    toast(t.message)
+                }
 
-    @Permissions(Permission.CAMERA)
-    override fun onRightClick(titleBar: TitleBar) {
-        // “QRCODE_SCAN_TYPE”和“DATAMATRIX_SCAN_TYPE”表示只扫描QR和Data Matrix的码
-        val options = HmsScanAnalyzerOptions.Creator()
-            .setHmsScanTypes(HmsScan.QRCODE_SCAN_TYPE)
-            .create()
-        MyScanUtil.startScan(this, REQUEST_CODE_SCAN_ONE, options)
+                override fun onCancel(platform: Platform?) {
+                    toast("分享取消")
+                }
+            }).show()
     }
 
     override fun showLoading(id: Int) {
@@ -151,69 +180,16 @@ class RosterListFragment : TitleBarFragment<AppActivity>(), StatusAction, OnBack
         mRefreshStatus.isFirstRefresh = false
     }
 
-    override fun getStatusLayout(): StatusLayout = mBinding.hlFishPondHint
-
     override fun isStatusBarEnabled(): Boolean {
         // 使用沉浸式状态栏
         return !super.isStatusBarEnabled()
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        mRosterListAdapter.removeLoadStateListener(loadStateListener)
-    }
-
     override fun onBack2Top() {
-        mBinding.rvFishPondList.scrollToPosition(0)
+        mBinding.pagingRecyclerView.scrollToPosition(0)
     }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode != Activity.RESULT_OK || data == null) return
-        if (requestCode == REQUEST_CODE_SCAN_ONE) {
-            // 导入图片扫描返回结果
-            val hmsScan = data.getParcelableExtra(ScanUtil.RESULT) as HmsScan?
-            if (hmsScan != null) {
-                // 展示解码结果
-                showResult(hmsScan)
-            } else {
-                showNoContentTips()
-            }
-        }
-    }
-
-    private fun showNoContentTips() {
-        toast("什么内容也没有~")
-    }
-
-    private fun showResult(hmsScan: HmsScan?) {
-        val result = hmsScan?.showResult.orEmpty()
-        if (result.isBlank()) {
-            showNoContentTips()
-            return
-        }
-
-        // result can never be null.
-        val uri = Uri.parse(result)
-        val scheme = uri.scheme.orEmpty()
-        val authority = uri.authority.orEmpty()
-        val userId = uri.lastPathSegment.orEmpty()
-
-        Timber.d("showResult：===> scheme is $scheme authority is $authority userId is $userId")
-        Timber.d("showResult：===> result is $result")
-        // toast(userId)
-
-        when {
-            else -> ViewUserActivity.start(requireContext(), userId)
-        }
-    }
-
-    private fun unsupportedParsedContent() = toast("不支持解析的内容")
 
     companion object {
-
-        private val REQUEST_CODE_SCAN_ONE = hashCode()
-
         @JvmStatic
         fun newInstance() = RosterListFragment()
     }

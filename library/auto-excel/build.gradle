@@ -1,0 +1,31 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+
+}
+
+apply from : '../../config/common.gradle'
+
+dependencies {
+
+    implementation rootProject.ext.dependencies.Lombok
+    annotationProcessor rootProject.ext.dependencies.LombokAnnotation
+
+    // https://github.com/feng-haitao/auto-excel
+    /*implementation ('net.fenghaitao:auto-excel:2.0.0') {
+//        exclude group: 'org.apache.poi'
+//        exclude group: 'org.apache.xmlbeans'
+    }*/
+
+    // https://mvnrepository.com/artifact/javax.xml.stream/stax-api
+//    implementation 'javax.xml.stream:stax-api:1.0'
+
+//     implementation 'org.apache.poi:poi:4.1.2'
+//     implementation 'org.apache.poi:poi-ooxml:4.1.2'
+
+    // implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '3.17'
+//    implementation group: 'org.apache.xmlbeans', name: 'xmlbeans', version: '3.1.0'
+    // implementation 'javax.xml.stream:stax-api:1.0'
+//    implementation 'com.fasterxml:aalto-xml:1.2.2'
+
+}

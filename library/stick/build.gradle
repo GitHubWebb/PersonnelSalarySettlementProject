@@ -1,0 +1,17 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+
+}
+
+apply from : '../../config/common.gradle'
+
+dependencies {
+    // form https://github.com/oubowu/StickyItemDecoration
+
+    implementation rootProject.ext.dependencies.Lombok
+    annotationProcessor rootProject.ext.dependencies.LombokAnnotation
+
+    // Paging 分页库：https://developer.android.google.cn/jetpack/androidx/releases/paging
+    implementation rootProject.ext.dependencies.KtxPaging
+}

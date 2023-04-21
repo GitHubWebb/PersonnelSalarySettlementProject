@@ -28,7 +28,9 @@ object AppConfig {
      * 当前是否要开启日志打印功能
      */
     fun isLogEnable(): Boolean {
-        return BuildConfig.LOG_ENABLE
+        var logEnable = BuildConfig.LOG_ENABLE
+        println("logEnable: ${logEnable}")
+        return logEnable
     }
 
     /**

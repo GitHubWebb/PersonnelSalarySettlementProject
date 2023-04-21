@@ -9,6 +9,7 @@ import android.view.View
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.personal.salary.kotlin.viewmodel.app.AppViewModel
@@ -20,16 +21,20 @@ import com.personal.salary.kotlin.app.AppActivity
 import com.personal.salary.kotlin.app.AppFragment
 import com.personal.salary.kotlin.ktx.hideSupportActionBar
 import com.personal.salary.kotlin.manager.ActivityManager
+import com.personal.salary.kotlin.manager.EmployeeRosterManager
 import com.personal.salary.kotlin.manager.UserManager
-import com.personal.salary.kotlin.model.AppUpdateInfo
+import com.personal.salary.kotlin.model.FirApiResponse
 import com.personal.salary.kotlin.other.AppConfig
 import com.personal.salary.kotlin.other.DoubleClickHelper
 import com.personal.salary.kotlin.ui.adapter.HomeFragmentAdapter
 import com.personal.salary.kotlin.ui.adapter.NavigationAdapter
 import com.personal.salary.kotlin.ui.dialog.UpdateDialog
-import com.personal.salary.kotlin.ui.fragment.RosterListFragment
+import com.personal.salary.kotlin.ui.fragment.FishListFragment
 import com.tencent.bugly.crashreport.CrashReport
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.abs
 
@@ -48,7 +53,7 @@ class HomeActivity : AppActivity(), NavigationAdapter.OnNavigationListener, OnDo
         private const val INTENT_KEY_IN_FRAGMENT_CLASS: String = "fragmentClass"
 
         @JvmOverloads
-        fun start(context: Context, fragmentClass: Class<out AppFragment<*>?>? = RosterListFragment::class.java) {
+        fun start(context: Context, fragmentClass: Class<out AppFragment<*>?>? = FishListFragment::class.java) {
             val intent = Intent(context, HomeActivity::class.java)
             intent.putExtra(INTENT_KEY_IN_FRAGMENT_CLASS, fragmentClass)
             if (context !is Activity) {
@@ -71,14 +76,14 @@ class HomeActivity : AppActivity(), NavigationAdapter.OnNavigationListener, OnDo
 
     override fun initView() {
         hideSupportActionBar()
-        pagerAdapter = HomeFragmentAdapter(this).also { pagerAdapter = it }
+        // pagerAdapter = HomeFragmentAdapter(this).also { pagerAdapter = it }
         viewPager2?.let {
             it.isUserInputEnabled = false
             it.adapter = HomeFragmentAdapter(this).apply { pagerAdapter = this }
             it.offscreenPageLimit = 1
         }
         navigationAdapter = NavigationAdapter(this).apply {
-            addMenuItem(R.string.home_nav_personal, R.drawable.home_personal_selector)
+            addMenuItem(R.string.home_nav_roster, R.drawable.home_personal_selector)
             addMenuItem(R.string.home_nav_import, R.drawable.home_import_selector)
             addMenuItem(R.string.home_nav_me, R.drawable.home_me_selector)
             setOnNavigationListener(this@HomeActivity)
@@ -104,6 +109,7 @@ class HomeActivity : AppActivity(), NavigationAdapter.OnNavigationListener, OnDo
 
         // 设置当前用户的阳光沙滩账号id，用于标识某位同学的APP发生了故障
         CrashReport.setUserId(UserManager.loadCurrUserId())
+
     }
 
     override fun initEvent() {
@@ -122,7 +128,7 @@ class HomeActivity : AppActivity(), NavigationAdapter.OnNavigationListener, OnDo
         }
     }
 
-    fun onlyCheckOrUpdate(appUpdateInfo: AppUpdateInfo) {
+    fun onlyCheckOrUpdate(appUpdateInfo: FirApiResponse.FirAppUpdateInfo) {
         // 是否需要强制更新（当前版本低于最低版本，强制更新）
         val minVersionCode = appUpdateInfo.minVersionCode
         val needForceUpdate = AppConfig.getVersionCode() < minVersionCode
@@ -132,7 +138,7 @@ class HomeActivity : AppActivity(), NavigationAdapter.OnNavigationListener, OnDo
         takeIf { lowerThanLatest }?.let { showUpdateDialog(appUpdateInfo, appUpdateInfo.forceUpdate) }
     }
 
-    private fun showUpdateDialog(appUpdateInfo: AppUpdateInfo, forceUpdateApp: Boolean) {
+    private fun showUpdateDialog(appUpdateInfo: FirApiResponse.FirAppUpdateInfo, forceUpdateApp: Boolean) {
         updateDialog.setFileMd5(appUpdateInfo.apkHash)
             .setDownloadUrl(appUpdateInfo.url)
             .setForceUpdate(forceUpdateApp)

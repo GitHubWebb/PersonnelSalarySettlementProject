@@ -1,145 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/ll_fish_item_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/item_selector_ic"
-    android:orientation="vertical">
+    android:background="@drawable/item_selector_ic">
 
     <LinearLayout
-        android:id="@+id/ll_user_info_container"
+        android:id="@+id/article_top_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
         android:orientation="horizontal"
-        android:padding="10dp">
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <com.personal.salary.kotlin.widget.AvatarDecorView
-            android:id="@+id/iv_fish_pond_avatar"
+            android:id="@+id/iv_avatar"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_gravity="center_vertical"
-            android:contentDescription="用户头像"
-            android:src="@mipmap/ic_default_avatar" />
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
+            android:visibility="gone"
+            tools:src="@mipmap/ic_avatar" />
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:orientation="vertical">
+            android:layout_gravity="center_vertical">
 
             <TextView
-                android:id="@+id/tv_fish_pond_nick_name"
+                android:id="@+id/tv_nick_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
                 android:ellipsize="end"
-                android:maxLines="1"
-                android:textSize="18sp"
-                tools:text="A Lonely Cat"
-                tools:textColor="@color/pink" />
+                android:maxLines="2"
+                android:textColor="@color/black"
+                android:textSize="@dimen/sp_16"
+                android:textStyle="bold"
+                tools:text="姓名 + 入职时间" />
 
             <TextView
-                android:id="@+id/tv_fish_pond_desc"
+                android:id="@+id/tv_team_job_name"
+                android:layout_width="@dimen/dp_70"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:layout_alignParentEnd="true"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:textColor="@color/black45"
+                android:textSize="@dimen/sp_12"
+                android:textStyle="bold"
+                tools:text="部门名称 + 职位名称" />
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:maxLines="2"
-                android:textColor="@color/default_font_color"
-                android:textSize="11sp" />
+                android:layout_below="@id/tv_nick_name"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
+                android:orientation="horizontal">
 
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/tv_rank_name"
+                    android:layout_width="0px"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:textSize="12sp"
+                    tools:text="职级" />
+
+                <TextView
+                    android:id="@+id/tv_create_time"
+                    android:layout_width="0px"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:textColor="@color/default_font_color"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/tv_fish_pond_content"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="6dp"
-        android:ellipsize="end"
-        android:maxLines="5"
-        android:textIsSelectable="true"
-        tools:text="我是摸鱼列表的正文内容啦" />
-
-    <com.personal.salary.kotlin.widget.SimpleGridLayout
-        android:id="@+id/simple_grid_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="6dp"
-        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-        app:spanCount="2"
-        tools:itemCount="4" />
-
-    <com.hjq.shape.view.ShapeTextView
-        android:id="@+id/tv_fish_pond_label"
+    <com.hjq.widget.view.SlantedTextView
+        android:id="@+id/stv_state"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/dp_10"
-        android:layout_marginTop="@dimen/dp_2"
-        android:layout_marginBottom="@dimen/dp_10"
-        android:contentDescription="话题标签"
-        android:paddingHorizontal="@dimen/dp_8"
-        android:paddingVertical="@dimen/dp_4"
-        android:textColor="@color/common_confirm_text_color"
-        android:textSize="12sp"
-        app:shape_radius="999dp"
-        app:shape_strokeColor="@color/common_confirm_text_color"
-        app:shape_strokeWidth="1px"
-        tools:text="上班摸鱼" />
-
-    <com.hjq.shape.layout.ShapeLinearLayout
-        android:id="@+id/ll_link_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="10dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="8dp"
+        android:paddingHorizontal="@dimen/dp_15"
+        android:paddingVertical="@dimen/dp_10"
+        android:text=""
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_12"
         android:visibility="gone"
-        app:shape_radius="@dimen/dp_4"
-        app:shape_solidColor="#F5F5F8">
-
-        <ImageView
-            android:id="@+id/iv_link_cover"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@mipmap/ic_link_default" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="10dp"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/tv_link_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:singleLine="true" />
-
-            <TextView
-                android:id="@+id/tv_link_url"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:singleLine="true"
-                android:textColor="#1D7DFA" />
-
-        </LinearLayout>
-
-    </com.hjq.shape.layout.ShapeLinearLayout>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.personal.salary.kotlin.widget.ListMenuItemContainer
         android:id="@+id/list_menu_item"
         android:layout_width="match_parent"
-        android:layout_height="40dp" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        app:defaultFirstIcon="@mipmap/ic_view"
+        app:layout_constraintTop_toBottomOf="@+id/article_top_container" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

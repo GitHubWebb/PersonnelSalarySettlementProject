@@ -5,6 +5,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.personal.salary.kotlin.ui.fragment.ImportFragment
 import com.personal.salary.kotlin.ui.fragment.RosterListFragment
 
 /**
@@ -17,7 +18,9 @@ class HomeFragmentAdapter : FragmentStateAdapter {
 
     private lateinit var fragmentManager: FragmentManager
 
-    constructor(fragmentActivity: FragmentActivity) : super(fragmentActivity)
+    constructor(fragmentActivity: FragmentActivity) : super(fragmentActivity) {
+        fragmentManager = fragmentActivity.getSupportFragmentManager()
+    }
 
     constructor(fragment: Fragment) : super(fragment)
 
@@ -31,6 +34,7 @@ class HomeFragmentAdapter : FragmentStateAdapter {
     fun getFragmentIndex(clazz: Class<out Fragment?>?): Int {
         return when (clazz?.name) {
             RosterListFragment::class.java.name -> 0
+            ImportFragment::class.java.name -> 1
             /*QaListFragment::class.java.name -> 1
             ArticleListFragment::class.java.name -> 2
             CourseListFragment::class.java.name -> 3
@@ -42,6 +46,7 @@ class HomeFragmentAdapter : FragmentStateAdapter {
     override fun createFragment(position: Int): Fragment {
         return when (position) {
             0 -> RosterListFragment.newInstance()
+            1 -> ImportFragment.newInstance()
             /*1 -> QaListFragment.newInstance()
             2 -> ArticleListFragment.newInstance()
             3 -> CourseListFragment.newInstance()
@@ -50,7 +55,8 @@ class HomeFragmentAdapter : FragmentStateAdapter {
         }
     }
 
-    fun getItem(position: Int): Fragment? = fragmentManager.findFragmentByTag("f${getItemId(position)}")
+    fun getItem(position: Int): Fragment? =
+        fragmentManager.findFragmentByTag("f${getItemId(position)}")
 
     override fun getItemCount(): Int = 5
 }

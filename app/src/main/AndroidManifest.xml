@@ -10,7 +10,10 @@
 
     <!-- 设置壁纸权限 -->
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
+
     <!-- 外部存储 -->
+    <!-- 文件管理权限（特殊权限，Android 11 新增的权限）-->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
@@ -226,6 +229,18 @@
             android:label="@string/web_title"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
+
+        <!-- 扫码界面 -->
+        <activity
+            android:name=".ui.activity.ScanCodeActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <!-- 搜索结果页 -->
+        <activity
+            android:name=".ui.activity.SearchActivity"
+            android:screenOrientation="portrait" />
+
     </application>
 
 </manifest>

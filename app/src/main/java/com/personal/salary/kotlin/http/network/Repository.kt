@@ -15,6 +15,7 @@ import com.personal.salary.kotlin.model.*
 import com.personal.salary.kotlin.model.wallpaper.WallpaperBean
 import com.personal.salary.kotlin.model.weather.Place
 import com.personal.salary.kotlin.model.weather.Weather
+import com.xiaomi.push.it
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -125,7 +126,14 @@ object Repository {
 
     fun queryUserAvatar(account: String) = launchAndGetData { UserNetwork.queryUserAvatar(account) }
 
-    fun checkAppUpdate(): LiveData<Result<AppUpdateInfo>> = launchAndGetData { AppNetwork.checkAppUpdate() }
+    fun checkAppUpdate() = liveData(build = { AppNetwork.checkAppUpdate() }) {
+        Timber.d("checkAppUpdate：===> result is ${it.toJson()}")
+
+        when {
+            it.isSuccess() -> Result.success(it.getData())
+            else -> it.toErrorResult()
+        }
+    }
 
     fun getMourningCalendar(): LiveData<Result<List<MourningCalendar>>> = launchAndGetData { AppNetwork.getMourningCalendar() }
 

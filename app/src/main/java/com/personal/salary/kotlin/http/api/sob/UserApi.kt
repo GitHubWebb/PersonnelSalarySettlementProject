@@ -11,6 +11,12 @@ import retrofit2.http.*
 interface UserApi {
 
     /**
+     * 搜索文章列表
+     */
+    @POST("ct/ucenter/article/list/{page}")
+    suspend fun searchArticleList(@Path("page") page: Int, @Body articleSearchFilter: ArticleSearchFilter): ApiResponse<UserArticle>
+
+    /**
      * 查询积分规则
      * item 参数格式：请求方法:请求路径(不含参数)，例：PUT:/uc/ucenter/cover
      *
