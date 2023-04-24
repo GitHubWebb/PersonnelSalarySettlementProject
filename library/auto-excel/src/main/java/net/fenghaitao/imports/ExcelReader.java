@@ -2,13 +2,20 @@ package net.fenghaitao.imports;
 
 import net.fenghaitao.context.ImportContext;
 import net.fenghaitao.exception.AutoExcelException;
+
 import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.util.SAXHelper;
 import org.apache.poi.util.XMLHelper;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
+import org.xml.sax.helpers.XMLReaderFactory;
 
+import java.io.File;
 import java.io.InputStream;
 
 public class ExcelReader extends DefaultHandler {
@@ -23,8 +30,8 @@ public class ExcelReader extends DefaultHandler {
      */
     public void process(String filename) {
         try {
-            OPCPackage pkg = OPCPackage.open(filename);
-            XSSFReader xssfReader = new XSSFReader(pkg);
+            OPCPackage opc = OPCPackage.open(filename);
+            XSSFReader xssfReader = new XSSFReader(opc);
             importContext.setStylesTable(xssfReader.getStylesTable());
             importContext.setSharedStringsTable(xssfReader.getSharedStringsTable());
             XSSFReader.SheetIterator sheetIterator = (XSSFReader.SheetIterator) xssfReader.getSheetsData();
@@ -39,19 +46,19 @@ public class ExcelReader extends DefaultHandler {
                 }
                 sheetInputStream.close();
             }
-        }
-        catch (Exception e) {
+            opc.close();
+        } catch (Exception e) {
             throw new AutoExcelException(e);
         }
     }
 
     public XMLReader fetchSheetParser() {
         try {
-            XMLReader parser = XMLHelper.newXMLReader();
+            // XMLReader parser = XMLHelper.newXMLReader();
+            XMLReader parser = SAXHelper.newXMLReader();
             parser.setContentHandler(new SheetHandler(importContext));
             return parser;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new AutoExcelException(e);
         }
     }

@@ -3,6 +3,7 @@ package net.fenghaitao.imports;
 import net.fenghaitao.context.ImportContext;
 import net.fenghaitao.exception.AutoExcelException;
 import net.fenghaitao.parameters.ImportPara;
+
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.RichTextString;
@@ -44,17 +45,17 @@ public class SheetHandler extends DefaultHandler {
     /**
      * Receive notification of the start of an element.
      *
-     * @param uri The Namespace URI, or the empty string if the
-     *        element has no Namespace URI or if Namespace
-     *        processing is not being performed.
-     * @param localName The local name (without prefix), or the
-     *        empty string if Namespace processing is not being
-     *        performed.
-     * @param qName The qualified name (with prefix), or the
-     *        empty string if qualified names are not available.
+     * @param uri        The Namespace URI, or the empty string if the
+     *                   element has no Namespace URI or if Namespace
+     *                   processing is not being performed.
+     * @param localName  The local name (without prefix), or the
+     *                   empty string if Namespace processing is not being
+     *                   performed.
+     * @param qName      The qualified name (with prefix), or the
+     *                   empty string if qualified names are not available.
      * @param attributes The attributes attached to the element.  If
-     *        there are no attributes, it shall be an empty
-     *        Attributes object.
+     *                   there are no attributes, it shall be an empty
+     *                   Attributes object.
      */
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) {
@@ -80,13 +81,13 @@ public class SheetHandler extends DefaultHandler {
 
     /**
      * Receive notification of character data inside an element.
-     *
+     * <p>
      * Get the index or content corresponding to the cell.
      * If the cell type is string, INLINESTR, number, date, lastContent is index.
      * If the cell type is boolean, error, formula, lastContent is the content.
      *
-     * @param ch The characters.
-     * @param start The start position in the character array.
+     * @param ch     The characters.
+     * @param start  The start position in the character array.
      * @param length The number of characters to use from the
      *               character array.
      */
@@ -101,14 +102,14 @@ public class SheetHandler extends DefaultHandler {
     /**
      * Receive notification of the end of an element.
      *
-     * @param uri The Namespace URI, or the empty string if the
-     *        element has no Namespace URI or if Namespace
-     *        processing is not being performed.
+     * @param uri       The Namespace URI, or the empty string if the
+     *                  element has no Namespace URI or if Namespace
+     *                  processing is not being performed.
      * @param localName The local name (without prefix), or the
-     *        empty string if Namespace processing is not being
-     *        performed.
-     * @param qName The qualified name (with prefix), or the
-     *        empty string if qualified names are not available.
+     *                  empty string if Namespace processing is not being
+     *                  performed.
+     * @param qName     The qualified name (with prefix), or the
+     *                  empty string if qualified names are not available.
      */
     @Override
     public void endElement(String uri, String localName, String qName) {
@@ -148,18 +149,16 @@ public class SheetHandler extends DefaultHandler {
     public void setCellDataType(Attributes attributes) {
         String cellType = attributes.getValue(XmlConstants.ATTRIBUTE_T);
         // If cellType is empty, it means that the cell type is number
-        if (cellType == null)
-            cellType = "n";
+        if (cellType == null) cellType = "n";
 
         switch (cellType) {
             case "n":
                 cellDataType = CellDataType.NUMBER;
 
                 String strStyleIndex = attributes.getValue(XmlConstants.ATTRIBUTE_S);
-                if (strStyleIndex == null)
-                    break;
+                if (strStyleIndex == null) break;
 
-                CellDataType cachedCellDataType =  styleCellDataTypes.get(strStyleIndex);
+                CellDataType cachedCellDataType = styleCellDataTypes.get(strStyleIndex);
                 if (cachedCellDataType != null) {
                     cellDataType = cachedCellDataType;
                     break;
@@ -194,7 +193,8 @@ public class SheetHandler extends DefaultHandler {
 
     /**
      * Type processing on the parsed data
-     * @param value   cell value
+     *
+     * @param value cell value
      */
     public Object getCellValue(String value) {
         switch (cellDataType) {
@@ -210,8 +210,14 @@ public class SheetHandler extends DefaultHandler {
             case SSTINDEX:
                 int idx = Integer.parseInt(value);
                 // Get content value based on index value
+                /* 5.0+
                 RichTextString rts = importContext.getSharedStringsTable().getItemAt(idx);
                 return rts.toString();
+                */
+
+                // 3.17
+                String rts = new XSSFRichTextString(importContext.getSharedStringsTable().getEntryAt(idx)).toString();
+                return rts;
             case NUMBER:
                 return new BigDecimal(value);
             case DATE:

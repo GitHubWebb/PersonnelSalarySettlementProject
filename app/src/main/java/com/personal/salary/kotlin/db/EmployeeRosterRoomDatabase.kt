@@ -6,11 +6,12 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.personal.salary.kotlin.db.dao.EmployeeRosterDao
+import com.personal.salary.kotlin.manager.DateConverter
 import com.personal.salary.kotlin.manager.EmployeeRosterStore
 
 // 将类注释为带有 RosterCookieStore 类的表（实体）的 Room 数据库
 @Database(entities = [EmployeeRosterStore::class], version = 1, exportSchema = false)
-@TypeConverters(Converters::class)
+@TypeConverters( value = arrayOf(Converters::class, DateConverter::class))
 abstract class EmployeeRosterRoomDatabase : RoomDatabase() {
 
     abstract fun empDao(): EmployeeRosterDao

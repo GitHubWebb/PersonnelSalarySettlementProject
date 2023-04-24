@@ -38,7 +38,7 @@ class EmployeeRosterViewModel(application: Application) : AndroidViewModel(appli
     }
 
     /** 更新 花名册 */
-    fun updateRoster(employeeRosterStores: List<EmployeeRosterStore>) {
+    suspend fun updateRoster(employeeRosterStores: List<EmployeeRosterStore>, action: suspend () -> Unit) {
         employeeRosterStores.isNotEmpty() ?: return
 
         for (employeeRosterStore in employeeRosterStores) {
@@ -51,10 +51,14 @@ class EmployeeRosterViewModel(application: Application) : AndroidViewModel(appli
             } ?: continue
         }
 
+        action()
     }
 
-    fun saveOrUpdateRoster(employeeRosterStores: List<EmployeeRosterStore>) {
-        updateRoster(employeeRosterStores)
+    suspend fun saveOrUpdateRoster(
+        employeeRosterStores: List<EmployeeRosterStore>,
+        action: suspend () -> Unit
+    ) {
+        updateRoster(employeeRosterStores, action)
     }
 
     fun getRosterByName(empName: String) = empDao.doQueryByName(empName)
@@ -64,9 +68,6 @@ class EmployeeRosterViewModel(application: Application) : AndroidViewModel(appli
     fun getRosterListGroupByDept(): List<EmployeeRosterStore>? {
         var queryGroupByDept = empDao.doQueryGroupByDept()
         var rosterStoreStickList = mutableListOf<EmployeeRosterStore>()
-
-
-        // return          LivePagedListBuilder(queryGroupByDept, 2).build()
 
         // ?: 左侧为空 则返回右侧
         queryGroupByDept ?: return null

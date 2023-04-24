@@ -51,7 +51,8 @@ public class CellUtil {
      * Get the value of any type of cell
      */
     public static Object getValue(Cell cell) {
-        return getValue(cell, cell.getCellType());
+        // return getValue(cell, cell.getCellType());
+        return getValue(cell, cell.getCellTypeEnum());
     }
 
     private static Object getValue(Cell cell, CellType type) {
@@ -61,7 +62,8 @@ public class CellUtil {
             case ERROR:
                 return ErrorEval.getText(cell.getErrorCellValue());
             case FORMULA:
-                return getValue(cell, cell.getCachedFormulaResultType());
+                // return getValue(cell, cell.getCachedFormulaResultType());
+                return getValue(cell, cell.getCachedFormulaResultTypeEnum());
             case NUMERIC:
                 if (DateUtil.isCellDateFormatted(cell)) {
                     return cell.getDateCellValue();

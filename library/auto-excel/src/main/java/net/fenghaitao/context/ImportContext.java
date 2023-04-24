@@ -7,7 +7,6 @@ import net.fenghaitao.imports.DataSet;
 import net.fenghaitao.parameters.ImportPara;
 import net.fenghaitao.parameters.FieldSetting;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
-import org.apache.poi.xssf.model.SharedStrings;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
 
@@ -33,7 +32,7 @@ public class ImportContext {
     @Setter(AccessLevel.NONE)
     private Map<Integer, String> sheetIndexNames = new HashMap<>();
 
-    private SharedStrings sharedStringsTable;
+    private SharedStringsTable sharedStringsTable;
     private StylesTable stylesTable;
 
     @Setter(AccessLevel.NONE)

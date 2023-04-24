@@ -3,7 +3,7 @@ ext {
     //建了一个map，且名字叫做android。
     android = [
             // 最低安装版本
-            minSdkVersion    : 26,
+            minSdkVersion    : 21,
             // 目标适配版本
             targetSdkVersion : 31,
             compileSdkVersion: 31,

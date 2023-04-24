@@ -4,9 +4,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverter
 import com.personal.salary.kotlin.app.AppApplication
 import com.personal.salary.kotlin.viewmodel.EmployeeRosterViewModel
 import net.fenghaitao.annotation.ExcelProperty
+import java.util.Date
 
 /**
  * author : wangwx
@@ -24,8 +26,8 @@ class EmployeeRosterManager {
     fun saveEmployeeRoster(employeeRosterStore: EmployeeRosterStore) =
         empRosterViewModel.saveRoster(employeeRosterStore)
 
-    fun saveEmployeeRosterList(employeeRosterStores: List<EmployeeRosterStore>) =
-        empRosterViewModel.saveOrUpdateRoster(employeeRosterStores)
+    suspend fun saveEmployeeRosterList(employeeRosterStores: List<EmployeeRosterStore>, action: suspend () -> Unit) =
+        empRosterViewModel.saveOrUpdateRoster(employeeRosterStores, action)
 
     fun getRosterByName(empName: String) = empRosterViewModel.getRosterByName(empName)
 
@@ -78,7 +80,7 @@ data class EmployeeRosterStore @JvmOverloads constructor(
     @ExcelProperty("身份证") var empIdCard: String? = "",
 
     /** 入职日期 */
-    @ExcelProperty("入职日期") var entryDate: String? = "",
+    @ExcelProperty("入职日期") var entryDate: Date? = null,
 
     /** 司龄 */
     @ExcelProperty("司龄") var divisionAge: String? = "",
@@ -102,3 +104,15 @@ data class EmployeeRosterStore @JvmOverloads constructor(
     @ExcelProperty("职级") var rankName: String? = "",
 
     )
+
+object DateConverter {
+    @TypeConverter
+    fun revertDate(value: Long): Date {
+        return Date(value)
+    }
+
+    @TypeConverter
+    fun converterDate(value: Date): Long {
+        return value.time
+    }
+}

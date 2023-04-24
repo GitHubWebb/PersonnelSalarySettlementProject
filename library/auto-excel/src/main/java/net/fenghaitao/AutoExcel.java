@@ -305,7 +305,8 @@ public class AutoExcel {
             //When the current cell is a ternary cell
             if (arr.length == 3) {
                 if (secondPart.equals("formula")) {
-                    if (cell.getCellType() != CellType.FORMULA) continue;
+                    // if (cell.getCellType() != CellType.FORMULA) continue;
+                    if (cell.getCellTypeEnum() != CellType.FORMULA) continue;
 
                     FormulaCellManager formulaCellManager = new FormulaCellManager();
                     formulaCellManager.setCellName(cellName);

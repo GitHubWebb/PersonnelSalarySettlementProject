@@ -63,11 +63,12 @@ import java.util.concurrent.TimeUnit
 @HiltAndroidApp
 class AppApplication : Application(), Configuration.Provider {
 
-    /*init {
+    init {
         System.setProperty("org.apache.poi.javax.xml.stream.XMLInputFactory", "com.fasterxml.aalto.stax.InputFactoryImpl")
         System.setProperty("org.apache.poi.javax.xml.stream.XMLOutputFactory", "com.fasterxml.aalto.stax.OutputFactoryImpl")
         System.setProperty("org.apache.poi.javax.xml.stream.XMLEventFactory", "com.fasterxml.aalto.stax.EventFactoryImpl")
-    }*/
+    }
+
     @Log("启动耗时")
     override fun onCreate() {
         super.onCreate()

@@ -24,8 +24,8 @@
     <com.scwang.smart.refresh.layout.SmartRefreshLayout
         android:id="@+id/rl_status_refresh"
         android:layout_width="match_parent"
-        android:layout_marginTop="@dimen/dp_20"
         android:layout_height="0px"
+        android:layout_marginTop="@dimen/dp_20"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -3,6 +3,7 @@ package com.personal.salary.kotlin.ui.fragment
 import android.app.Activity
 import android.content.Intent
 import android.view.View
+import android.widget.FrameLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
@@ -13,6 +14,7 @@ import com.hjq.permissions.Permission
 import com.hjq.permissions.XXPermissions
 import com.personal.salary.kotlin.R
 import com.personal.salary.kotlin.action.OnBack2TopListener
+import com.personal.salary.kotlin.action.StatusAction
 import com.personal.salary.kotlin.app.TitleBarFragment
 import com.personal.salary.kotlin.databinding.StatusFragmentBinding
 import com.personal.salary.kotlin.ktx.dp
@@ -24,6 +26,8 @@ import com.personal.salary.kotlin.other.PermissionCallback
 import com.personal.salary.kotlin.ui.activity.HomeActivity
 import com.personal.salary.kotlin.ui.adapter.ImportAdapter
 import com.personal.salary.kotlin.util.SimpleLinearSpaceItemDecoration
+import com.personal.salary.kotlin.widget.StatusLayout
+import com.xiaomi.push.it
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.rosuh.filepicker.config.FilePickerManager
@@ -138,9 +142,11 @@ class ImportFragment : TitleBarFragment<HomeActivity>(), OnBack2TopListener,
                         }
                     })
             }
+
             ImportRule.ImportType.IMPORT_SOP -> {
                 toast(importType.itemName)
             }
+
             else -> {}
         }
     }
@@ -153,6 +159,7 @@ class ImportFragment : TitleBarFragment<HomeActivity>(), OnBack2TopListener,
                     val list = FilePickerManager.obtainData()
                     toast("$list")
 
+                    showDialog()
                     thread {
                         for (dir in list) {
                             var fileByPath = FileUtils.getFileByPath(dir)
@@ -171,7 +178,8 @@ class ImportFragment : TitleBarFragment<HomeActivity>(), OnBack2TopListener,
                             // 方式一、获取原始数据，没有类型转换，可通过这种方式检验数据是否符合要求
                             // var products = dataSet.get("Product");
                             // 方式二、通过sheet索引获取指定类的数据，类型自动转换，转换失败将抛出异常
-                            var products = dataSet.get("花名册-ok", EmployeeRosterStore::class.java);
+                            var products =
+                                dataSet.get("花名册-ok", EmployeeRosterStore::class.java);
                             Timber.d("dataSet: ${dataSet}")
                             Timber.d("products: ${products.toJson()}")
                             // List<Project> projects= dataSet.get(1, Project.class);
@@ -180,7 +188,9 @@ class ImportFragment : TitleBarFragment<HomeActivity>(), OnBack2TopListener,
                             // List<Project> projects = dataSet.get("Project", Project.class);
                             lifecycleScope.launch(Dispatchers.IO) {
                                 val employeeRosterManager = EmployeeRosterManager.get()
-                                employeeRosterManager.saveEmployeeRosterList(products)
+                                employeeRosterManager.saveEmployeeRosterList(products) {
+                                    hideDialog()
+                                }
 
                             }
 
