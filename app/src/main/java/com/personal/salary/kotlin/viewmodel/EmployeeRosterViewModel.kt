@@ -7,6 +7,8 @@ import com.personal.salary.kotlin.app.AppApplication
 import com.personal.salary.kotlin.db.dao.EmployeeRosterDao
 import com.personal.salary.kotlin.ktx.toJson
 import com.personal.salary.kotlin.manager.EmployeeRosterStore
+import com.personal.salary.kotlin.manager.FirstDeptAndRosterCountVO
+import com.personal.salary.kotlin.other.SearchType
 import timber.log.Timber
 
 
@@ -38,7 +40,10 @@ class EmployeeRosterViewModel(application: Application) : AndroidViewModel(appli
     }
 
     /** 更新 花名册 */
-    suspend fun updateRoster(employeeRosterStores: List<EmployeeRosterStore>, action: suspend () -> Unit) {
+    suspend fun updateRoster(
+        employeeRosterStores: List<EmployeeRosterStore>,
+        action: suspend () -> Unit
+    ) {
         employeeRosterStores.isNotEmpty() ?: return
 
         for (employeeRosterStore in employeeRosterStores) {
@@ -62,6 +67,9 @@ class EmployeeRosterViewModel(application: Application) : AndroidViewModel(appli
     }
 
     fun getRosterByName(empName: String) = empDao.doQueryByName(empName)
+
+    /** 根据搜索条件获取员工信息 */
+    fun getRosterByKeywords(keyword: String, searchType: String) = empDao.doQueryByKeyWord(keyword, searchType)
 
     fun getRosterList() = empDao.findAll()
 
@@ -110,9 +118,22 @@ class EmployeeRosterViewModel(application: Application) : AndroidViewModel(appli
                 peopleCount++
             })
 
+            // 避免最后一条header头 人员数据值错误 刷新下
+            // 根据存储的部门类型头 获取粘性item 实体
+            rosterStoreStickList.getOrNull(curItemTypePos)?.also {
+                // 修改对应实体中 人员数量
+                it.itemCount = peopleCount
+            }
         }
 
         Timber.d("rosterStoreStickList: ${rosterStoreStickList.toJson()}")
         return rosterStoreStickList
+    }
+
+    /** 获取部门名称及对应人员总数 */
+    fun getDeptNameAndRosterCount(): MutableList<FirstDeptAndRosterCountVO>? {
+        var deptNameRosterCount = empDao.doQueryDeptNameAndRosterCount()
+        Timber.d("getDeptNameAndRosterCount: ${deptNameRosterCount.toJson()}")
+        return deptNameRosterCount as MutableList<FirstDeptAndRosterCountVO>
     }
 }

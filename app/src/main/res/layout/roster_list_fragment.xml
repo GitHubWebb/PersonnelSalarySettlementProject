@@ -127,7 +127,9 @@
                         layout="@layout/item_roster_sticky_head" />
 
                 </com.oubowu.stickyitemdecoration.StickyHeadContainer>
+
             </FrameLayout>
+
         </com.scwang.smart.refresh.layout.SmartRefreshLayout>
 
     </com.personal.salary.kotlin.widget.StatusLayout>

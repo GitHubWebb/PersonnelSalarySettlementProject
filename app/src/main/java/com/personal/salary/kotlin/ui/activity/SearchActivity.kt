@@ -9,12 +9,16 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import by.kirich1409.viewbindingdelegate.viewBinding
+import com.dylanc.longan.applicationViewModels
 import com.google.android.material.tabs.TabLayoutMediator
 import com.hjq.bar.TitleBar
 import com.personal.salary.kotlin.R
 import com.personal.salary.kotlin.app.AppActivity
+import com.personal.salary.kotlin.app.AppApplication
 import com.personal.salary.kotlin.databinding.SearchActivityBinding
 import com.personal.salary.kotlin.ktx.clearTooltipText
 import com.personal.salary.kotlin.ktx.hideKeyboard
@@ -22,7 +26,11 @@ import com.personal.salary.kotlin.ktx.reduceDragSensitivity
 import com.personal.salary.kotlin.ktx.textString
 import com.personal.salary.kotlin.other.SearchType
 import com.personal.salary.kotlin.ui.fragment.SearchListFragment
+import com.personal.salary.kotlin.viewmodel.CookiesViewModel
 import com.personal.salary.kotlin.viewmodel.SearchViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
 /**
  * author : A Lonely Cat
@@ -33,7 +41,9 @@ import com.personal.salary.kotlin.viewmodel.SearchViewModel
 class SearchActivity : AppActivity() {
 
     private val mBinding by viewBinding<SearchActivityBinding>()
-    private val mSearchViewModel by viewModels<SearchViewModel>()
+
+    /** 实现Application作用域的共享ViewModel用于Activity和Fragment的相互通信 */
+    private val mSearchViewModel by applicationViewModels<SearchViewModel>()
     private lateinit var mTabLayoutMediator: TabLayoutMediator
 
     override fun getLayoutId(): Int = R.layout.search_activity
@@ -43,28 +53,42 @@ class SearchActivity : AppActivity() {
             showKeyboard(mBinding.searchView)
             viewPager2.apply {
                 reduceDragSensitivity()
+                Timber.d("mSearchViewModel: ${mSearchViewModel}")
+                Timber.d("firstDeptAndRosterCountVOS: ${mSearchViewModel.firstDeptAndRosterCountVOS} ")
                 adapter = object : FragmentStateAdapter(this@SearchActivity) {
 
-                    private val typeList = listOf(
+                    private val typeList = mSearchViewModel.firstDeptAndRosterCountVOS
+                    /*listOf(
                         SearchType.ALL,
                         SearchType.ARTICLE,
                         SearchType.QA,
                         SearchType.SHARE,
-                    )
+                    )*/
 
                     override fun getItemCount() = typeList.size
 
-                    override fun createFragment(position: Int): Fragment = SearchListFragment.newInstance(typeList[position])
+                    override fun createFragment(position: Int): Fragment =
+                        SearchListFragment.newInstance(typeList[position])
                 }
             }
+
             mTabLayoutMediator = TabLayoutMediator(tabLayout, viewPager2) { tab, position ->
-                tab.text = when (position) {
-                    0 -> "全部"
-                    1 -> "文章"
-                    2 -> "问答"
-                    3 -> "分享"
-                    else -> error("Creating this instance is not supported.")
-                }
+                tab.text =
+                    buildString {
+                        var firstDeptAndRosterCountVO =
+                            mSearchViewModel.firstDeptAndRosterCountVOS[position]
+                        append(firstDeptAndRosterCountVO.firstOrderDept)
+                        append("\t")
+                        append((firstDeptAndRosterCountVO.rosterCount))
+                    }
+
+                /*when (position) {
+                        0 -> "全部"
+                        1 -> "文章"
+                        2 -> "问答"
+                        3 -> "分享"
+                        else -> error("Creating this instance is not supported.")
+                    }*/
             }
             mTabLayoutMediator.attach()
             tabLayout.clearTooltipText()
@@ -102,7 +126,8 @@ class SearchActivity : AppActivity() {
 
     private fun doSearch() {
         with(mBinding.searchView.textString) {
-            takeUnless { isEmpty() }?.let { mSearchViewModel.setKeywords(this) } ?: toast("关键字不能为空哦~")
+            takeUnless { isEmpty() }?.let { mSearchViewModel.setKeywords(this) }
+                ?: toast("关键字不能为空哦~")
         }
     }
 
@@ -120,7 +145,11 @@ class SearchActivity : AppActivity() {
 
         fun start(activity: Activity, sharedElement: View) {
             Intent(activity, SearchActivity::class.java).apply {
-                val activityOptionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(activity, sharedElement, SHARED_ELEMENT_NAME)
+                val activityOptionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    activity,
+                    sharedElement,
+                    SHARED_ELEMENT_NAME
+                )
                 ActivityCompat.startActivity(activity, this, activityOptionsCompat.toBundle())
             }
         }

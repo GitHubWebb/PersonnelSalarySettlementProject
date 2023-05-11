@@ -170,6 +170,7 @@ dependencies {
     implementation rootProject.ext.dependencies.KtxRoom
 
     // Paging 分页库：https://developer.android.google.cn/jetpack/androidx/releases/paging
+    implementation rootProject.ext.dependencies.RoomPaging
     implementation rootProject.ext.dependencies.KtxPaging
     // Navigation 导航
     implementation rootProject.ext.dependencies.KtxNavigation

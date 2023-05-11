@@ -57,10 +57,10 @@ ext {
             Broccoli            : "1.0.0",
             Flexbox             : "1.0.0",
 
-            Paging              : "3.1.0-rc01",
             KtxNavigation       : "2.3.5",
             Emoji2              : "1.0.0-beta01",
             Room                : "2.4.2",
+            Paging              : "3.1.0-rc01",
             Work                : "2.7.1",
             Markwon             : "4.6.2",
             Prism               : "2.0.0",
@@ -98,6 +98,8 @@ ext {
             RoomCompiler          : "androidx.room:room-compiler:$version_.Room",
             // 对 Room 的 Kotlin 扩展和协程支持
             KtxRoom               : "androidx.room:room-ktx:$version_.Room",
+            RoomPaging            : "androidx.room:room-paging:$version_.Room",
+            KtxPaging             : "androidx.paging:paging-runtime-ktx:$version_.Paging",
 
             GreenDao              : "de.greenrobot:greendao:$version_.GreenDao",
             GreenDaoGenerator     : "de.greenrobot:greendao-generator:$version_.GreenDao",
@@ -117,7 +119,6 @@ ext {
             ToastUtils            : "com.github.getActivity:ToastUtils:$version_.ToastUtils",
             EasyHttp              : "com.github.getActivity:EasyHttp:$version_.EasyHttp",
 
-            KtxPaging             : "androidx.paging:paging-runtime-ktx:$version_.Paging",
             KtxNavigation         : "androidx.navigation:navigation-fragment-ktx:$version_.KtxNavigation",
             KtxNavigationUI       : "androidx.navigation:navigation-ui-ktx:$version_.KtxNavigation",
             NavigationFrgmt       : "androidx.navigation:navigation-dynamic-features-fragment:$version_.KtxNavigation",

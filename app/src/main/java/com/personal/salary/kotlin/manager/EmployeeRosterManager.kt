@@ -6,6 +6,7 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 import com.personal.salary.kotlin.app.AppApplication
+import com.personal.salary.kotlin.other.SearchType
 import com.personal.salary.kotlin.viewmodel.EmployeeRosterViewModel
 import net.fenghaitao.annotation.ExcelProperty
 import java.util.Date
@@ -26,14 +27,20 @@ class EmployeeRosterManager {
     fun saveEmployeeRoster(employeeRosterStore: EmployeeRosterStore) =
         empRosterViewModel.saveRoster(employeeRosterStore)
 
-    suspend fun saveEmployeeRosterList(employeeRosterStores: List<EmployeeRosterStore>, action: suspend () -> Unit) =
-        empRosterViewModel.saveOrUpdateRoster(employeeRosterStores, action)
+    suspend fun saveEmployeeRosterList(
+        employeeRosterStores: List<EmployeeRosterStore>, action: suspend () -> Unit
+    ) = empRosterViewModel.saveOrUpdateRoster(employeeRosterStores, action)
 
     fun getRosterByName(empName: String) = empRosterViewModel.getRosterByName(empName)
+
+    fun getRosterByKeywords(keyword: String, searchType: String) =
+        empRosterViewModel.getRosterByKeywords(keyword, searchType)
 
     fun getRosterList() = empRosterViewModel.getRosterList()
 
     fun getRosterListGroupByDept() = empRosterViewModel.getRosterListGroupByDept()
+
+    fun getDeptNameAndRosterCount() = empRosterViewModel.getDeptNameAndRosterCount()
 
     companion object {
         private var sINSTANCE: EmployeeRosterManager? = null
@@ -116,3 +123,5 @@ object DateConverter {
         return value.time
     }
 }
+
+data class FirstDeptAndRosterCountVO(var rosterCount: Int, var firstOrderDept: String)

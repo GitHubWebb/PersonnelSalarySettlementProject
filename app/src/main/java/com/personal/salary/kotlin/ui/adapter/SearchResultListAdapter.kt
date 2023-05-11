@@ -5,10 +5,14 @@ import android.view.ViewGroup
 import androidx.core.text.parseAsHtml
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.blankj.utilcode.util.TimeUtils
+import com.personal.salary.kotlin.databinding.RosterListItemBinding
 import com.personal.salary.kotlin.databinding.UserQaListItemBinding
 import com.personal.salary.kotlin.ktx.asViewBinding
 import com.personal.salary.kotlin.ktx.itemDiffCallback
 import com.personal.salary.kotlin.ktx.setFixOnClickListener
+import com.personal.salary.kotlin.manager.EmployeeRosterStore
+import com.personal.salary.kotlin.manager.UserManager
 import com.personal.salary.kotlin.model.SearchResult
 import com.personal.salary.kotlin.ui.adapter.delegate.AdapterDelegate
 
@@ -19,22 +23,34 @@ import com.personal.salary.kotlin.ui.adapter.delegate.AdapterDelegate
  * desc   : 搜索结果列表的适配器
  */
 class SearchResultListAdapter(private val adapterDelegate: AdapterDelegate) :
-    PagingDataAdapter<SearchResult.SearchResultItem, SearchResultListAdapter.SearchResultListViewHolder>(diffCallback) {
+    PagingDataAdapter<EmployeeRosterStore, SearchResultListAdapter.SearchResultListViewHolder>(diffCallback) {
 
-    inner class SearchResultListViewHolder(val binding: UserQaListItemBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class SearchResultListViewHolder(val binding: RosterListItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        constructor(parent: ViewGroup) : this(parent.asViewBinding<UserQaListItemBinding>())
+        constructor(parent: ViewGroup) : this(parent.asViewBinding<RosterListItemBinding>())
 
         // Replace image with empty drawable.
         private val emptyDrawable = ColorDrawable()
 
-        fun onBind(item: SearchResult.SearchResultItem?, position: Int) {
+        fun onBind(item: EmployeeRosterStore?, position: Int) {
             item ?: return
             with(binding) {
-                tvQaTitle.text = item.title.parseAsHtml()
+                // tvNickName.text = item.title.parseAsHtml()
                 // We do not need to display image information in the search results,
                 // so as to avoid typographical confusion caused by images.
-                tvDesc.text = item.content.parseAsHtml(imageGetter = { emptyDrawable })
+                // tvTeamJobName.text = item.content.parseAsHtml(imageGetter = { emptyDrawable })
+                tvNickName.text = "${item.empName} · ${
+                    TimeUtils.getFriendlyTimeSpanByNow(item.entryDate)
+                    /*TimeUtils.string2Date(
+                        item.entryDate,
+                        // 中国标准时间序列化 Fri Mar 31 00:00:00 GMT+08:00 2023
+                        SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH)
+                    )
+                )*/
+                }"
+                tvNickName.setTextColor(UserManager.getNickNameColor(false))
+                tvTeamJobName.text = item.teamName + item.jobTitle
+                tvRankName.text = item.rankName
             }
         }
     }
@@ -54,6 +70,6 @@ class SearchResultListAdapter(private val adapterDelegate: AdapterDelegate) :
     companion object {
 
         private val diffCallback =
-            itemDiffCallback<SearchResult.SearchResultItem>({ oldItem, newItem -> oldItem.id == newItem.id }) { oldItem, newItem -> oldItem == newItem }
+            itemDiffCallback<EmployeeRosterStore>({ oldItem, newItem -> oldItem.uId == newItem.uId }) { oldItem, newItem -> oldItem == newItem }
     }
 }

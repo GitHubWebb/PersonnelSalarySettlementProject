@@ -51,8 +51,8 @@ interface StatusAction {
     /**
      * 显示空提示
      */
-    fun showEmpty() {
-        showLayout(R.drawable.status_empty_ic, R.string.status_layout_no_data, null)
+    fun showEmpty(listener: OnRetryListener? = null) {
+        showLayout(R.drawable.status_empty_ic, R.string.status_layout_no_data, listener)
     }
 
     /**

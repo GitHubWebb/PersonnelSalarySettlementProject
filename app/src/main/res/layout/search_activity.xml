@@ -38,7 +38,7 @@
                 android:layout_height="@dimen/dp_30"
                 android:background="@null"
                 android:gravity="center_vertical"
-                android:hint="搜你想搜"
+                android:hint="姓名"
                 android:imeOptions="actionSearch"
                 android:paddingHorizontal="@dimen/dp_10"
                 android:singleLine="true"
@@ -52,7 +52,8 @@
         android:id="@+id/tab_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white" />
+        android:background="@color/white"
+        app:tabMode="scrollable" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/view_pager2"

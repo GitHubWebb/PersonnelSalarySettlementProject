@@ -77,15 +77,15 @@ class RosterAdapter(private val adapterDelegate: AdapterDelegate) :
                         }
                     }
                 }
-                ivAvatar.loadAvatar(true, item.affiliatedUnit)
+                // ivAvatar.loadAvatar(true, item.affiliatedUnit)
                 tvNickName.text = "${item.empName} · ${
                     TimeUtils.getFriendlyTimeSpanByNow(item.entryDate)
-                        /*TimeUtils.string2Date(
-                            item.entryDate,
-                            // 中国标准时间序列化 Fri Mar 31 00:00:00 GMT+08:00 2023
-                            SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH)
-                        )
-                    )*/
+                    /*TimeUtils.string2Date(
+                        item.entryDate,
+                        // 中国标准时间序列化 Fri Mar 31 00:00:00 GMT+08:00 2023
+                        SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH)
+                    )
+                )*/
                 }"
                 tvNickName.setTextColor(UserManager.getNickNameColor(false))
                 tvTeamJobName.text = item.teamName + item.jobTitle

@@ -50,9 +50,9 @@
                 android:id="@+id/tv_team_job_name"
                 android:layout_width="@dimen/dp_70"
                 android:layout_height="wrap_content"
-                android:gravity="right"
                 android:layout_alignParentEnd="true"
                 android:ellipsize="end"
+                android:gravity="right"
                 android:maxLines="2"
                 android:textColor="@color/black45"
                 android:textSize="@dimen/sp_12"
@@ -113,6 +113,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
+        android:visibility="invisible"
         app:defaultFirstIcon="@mipmap/ic_view"
         app:layout_constraintTop_toBottomOf="@+id/article_top_container" />
 

@@ -35,6 +35,7 @@ import com.personal.salary.kotlin.util.SimpleLinearSpaceItemDecoration
 import com.personal.salary.kotlin.viewmodel.fish.FishViewModel
 import com.personal.salary.kotlin.widget.StatusLayout
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.text.SimpleDateFormat
@@ -90,10 +91,10 @@ class FishListFragment : TitleBarFragment<AppActivity>(), StatusAction, OnBack2T
 
     private fun loadFishList() {
         viewLifecycleScope.launchWhenCreated {
-            /*mFishPondViewModel.getFishListByCategoryId("recommend").collectLatest {
+            mFishPondViewModel.getFishListByCategoryId("recommend").collectLatest {
                 onBack2Top()
                 mFishListAdapter.submitData(it)
-            }*/
+            }
         }
     }
 
@@ -103,6 +104,7 @@ class FishListFragment : TitleBarFragment<AppActivity>(), StatusAction, OnBack2T
                 onBack2Top()
             }
             refreshLayout.setOnRefreshListener {
+                loadFishList()
                 mFishListAdapter.refresh()
             }
             ivPublish.setFixOnClickListener {

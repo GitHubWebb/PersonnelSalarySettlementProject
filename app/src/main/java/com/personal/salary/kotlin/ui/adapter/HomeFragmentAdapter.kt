@@ -35,7 +35,9 @@ class HomeFragmentAdapter : FragmentStateAdapter {
         return when (clazz?.name) {
             RosterListFragment::class.java.name -> 0
             ImportFragment::class.java.name -> 1
-            /*QaListFragment::class.java.name -> 1
+            /*
+            FishListFragment::class.java.name -> 2
+            QaListFragment::class.java.name -> 1
             ArticleListFragment::class.java.name -> 2
             CourseListFragment::class.java.name -> 3
             MyMeFragment::class.java.name -> 4*/
@@ -47,7 +49,9 @@ class HomeFragmentAdapter : FragmentStateAdapter {
         return when (position) {
             0 -> RosterListFragment.newInstance()
             1 -> ImportFragment.newInstance()
-            /*1 -> QaListFragment.newInstance()
+            /*
+            2 -> FishListFragment.newInstance()
+            1 -> QaListFragment.newInstance()
             2 -> ArticleListFragment.newInstance()
             3 -> CourseListFragment.newInstance()
             4 -> MyMeFragment.newInstance()*/
